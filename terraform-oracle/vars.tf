@@ -41,5 +41,5 @@ variable "TFE_IP" {
 }
 
 output "public_ips" {
- value = ["${aws_instance.oraclerac.*.public_ip}"]
+ value = ["${aws_instance.mycluster.*.public_ip}"]
 }
