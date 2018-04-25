@@ -36,8 +36,8 @@ resource "aws_instance" "mycluster" {
      #private_key = "${file(${var.path_to_private_key})}"
      private_key = "${var.PRIVATE_KEY}"
     }
-
-}
 */
+}
+
 
 
