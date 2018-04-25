@@ -1,7 +1,18 @@
+data "aws_ami" "centos" {
+  most_recent = true
+   
+  filter {
+    name   = "name"
+    values = ["CentOS 7 (x86_64) - with Updates HVM"]
+  }
+}
+
+
 resource "aws_instance" "mycluster" {
   count = "${var.count_instances}"
 
-  ami           = "${var.ami_id}"
+  #ami           = "${var.ami_id}"
+  ami = "${data.aws_ami.centos.id}"
   instance_type = "${var.INSTANCE_TYPE}"
 
   # the security group
