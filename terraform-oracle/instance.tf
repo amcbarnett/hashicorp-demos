@@ -12,7 +12,7 @@ resource "aws_instance" "mycluster" {
   key_name = "${var.SSH_KEY_NAME}"
 
   tags {
-    Name = "${var.name}"
+    Name = "${var.name}-${count.index}"
     TTL = 72
   }
 
@@ -38,6 +38,5 @@ resource "aws_instance" "mycluster" {
     }
 */
 }
-
 
 
