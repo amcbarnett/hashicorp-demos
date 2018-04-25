@@ -2,7 +2,7 @@ data "aws_ami" "centos" {
   most_recent = true
    
   # name_regex  = "CentOS 7 (x86_64) - with Updates HVM.*"
-   owners = "aws-marketplace"
+   owners = ["aws-marketplace"]
 
   filter {
     name   = "product-code"
