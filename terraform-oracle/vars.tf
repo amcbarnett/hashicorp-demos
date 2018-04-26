@@ -43,3 +43,11 @@ variable "TFE_IP" {
 output "public_ips" {
  value = ["${aws_instance.mycluster.*.public_ip}"]
 }
+
+output "public_dns" {
+ value = ["${aws_instance.mycluster.*.public_dns}"]
+}
+
+output "private_ips" {
+ value = ["${aws_instance.mycluster.*.private_ip}"]
+}
