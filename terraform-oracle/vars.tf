@@ -50,4 +50,5 @@ output "public_dns" {
 
 output "private_ips" {
  value = ["${aws_instance.mycluster.*.private_ip}"]
-}
+
+
