@@ -57,10 +57,10 @@ output "private_ips" {
 }
 
 output "master_node" {
- value = ["master is at ${element(aws_instance.mycluster.*.public_dns,0)}:19999"]
+ value = ["${element(aws_instance.mycluster.*.public_dns,0):19999}"]
 }
 
  output "worker_nodes" {
- value = ["${slice(aws_instance.mycluster.*.public_dns,1,var.count_instances)}:30000"]
+ value = ["${slice(aws_instance.mycluster.*.public_dns,1,var.count_instances):30000}"]
  
 }
