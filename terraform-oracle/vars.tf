@@ -16,6 +16,10 @@ variable "INSTANCE_TYPE" {
   default = "t2.micro"
 }
 
+variable "INSTANCE_USERNAME" {
+  default = "centos"
+}
+
 variable "AWS_REGION" {
   default = "us-east-1"
 }

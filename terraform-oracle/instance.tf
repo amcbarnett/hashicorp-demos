@@ -62,14 +62,14 @@ resource "null_resource" "configure-cluster-ips" {
     private_key = "${var.PRIVATE_KEY}"
     type = "ssh"
     #agent = true
-    host = "${element(aws_instance.cluster.*.public_ip, count.index)}"
+    host = "${element(aws_instance.mycluster.*.public_ip, count.index)}"
     timeout = "3m"
   }
 
   provisioner "remote-exec" {
     inline = [
-      "sudo echo '${join("\n", aws_instance.cluster.*.public_ip)}' >> hosts",
-      "sudo echo '${join("\n", formatlist("%s\t%s", aws_instance.cluster.*.public_ip, aws_instance.mycluster.*.public_dns))}' >> /etc/hosts",
+      "sudo echo '${join("\n", aws_instance.mycluster.*.public_ip)}' >> hosts",
+      "sudo echo '${join("\n", formatlist("%s\t%s", aws_instance.mycluster.*.public_ip, aws_instance.mycluster.*.public_dns))}' >> /etc/hosts",
     ]
   }
 }
