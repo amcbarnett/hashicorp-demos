@@ -94,7 +94,8 @@ resource "null_resource" "configure-cluster-master" {
   provisioner "remote-exec" {
     inline = [
      "chmod +x deploycluster.sh",
-    "./deploycluster.sh ${var.PRIVATE_KEY} ${var.INSTANCE_USERNAME} ${var.name} ${element(aws_instance.mycluster.*.private_dns, 0)}",
+     "cat > test.pem << EOF ${var.PRIVATE_KEY} EOF"
+     "./deploycluster.sh ${var.PRIVATE_KEY} ${var.INSTANCE_USERNAME} ${var.name} ${element(aws_instance.mycluster.*.private_dns, 0)}",
     ]
   }
   depends_on = [
