@@ -64,4 +64,9 @@ output "master_node" {
  value = ["${slice(aws_instance.mycluster.*.public_dns,1,var.count_instances)}:30000"]
  
 }
+
+# Outputs
+output "private_key_data" {
+  value = "${module.ssh-keypair-data.private_key_pem}"
+}
 */
