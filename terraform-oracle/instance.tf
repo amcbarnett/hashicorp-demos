@@ -30,13 +30,19 @@ resource "aws_instance" "mycluster" {
     TTL = 72
   }
 
- provisioner "remote-exec" {
+  # Copies installclusterbits.sh
+  provisioner "file" {
+    source      = "scripts/installclusterbits.sh"
+    destination = "installclusterbits.sh"
+   }
+
+  provisioner "remote-exec" {
    inline = [
     "sudo yum install -y java-1.8.0-openjdk-devel",
-    #"chmod +x runcbd.sh",
-    #"./runcbd.sh ${var.UAA_DEFAULT_SECRET} ${var.UAA_DEFAULT_USER_PW} ${var.UAA_DEFAULT_USER_EMAIL}"
-  ]
- }
+    "chmod +x installclusterbits.sh",
+    "./installclusterbits.sh ${var.name}"
+   ]
+  }
    connection {
      Type = "ssh"
      user = "${var.INSTANCE_USERNAME}"
@@ -47,7 +53,6 @@ resource "aws_instance" "mycluster" {
 
 # Need to wait until all resources provision to get the IP and HostNames
 resource "null_resource" "configure-cluster-ips" {
-  count = "${var.count_instances}"
 
   connection {
     user = "${var.INSTANCE_USERNAME}"
@@ -61,9 +66,42 @@ resource "null_resource" "configure-cluster-ips" {
   provisioner "remote-exec" {
     inline = [
       "sudo echo '${join("\n", aws_instance.mycluster.*.public_ip)}' >> hosts",
+      "sudo echo '${element(aws_instance.mycluster.*.public_dns, 0)}' >> ~/${var.name}/conf/masters",
+      "sudo echo '${join("\n", splice(aws_instance.mycluster.*.public_dns,1,var.count_instances))}' >> ~/${var.name}/conf/workers",
       "sudo su -c \"echo '${join("\n", formatlist("%s  %s", aws_instance.mycluster.*.public_ip, aws_instance.mycluster.*.public_dns))}' >> /etc/hosts\"",
     ]
   }
+}
+
+# After configuring IPs, deploy cluster from Master Node
+resource "null_resource" "configure-cluster-master" {
+  count = "${var.count_instances}"
+
+  connection {
+    user = "${var.INSTANCE_USERNAME}"
+    private_key = "${var.PRIVATE_KEY}"
+    type = "ssh"
+    #agent = true
+    host = "${element(aws_instance.mycluster.*.public_ip, 0)}"
+    timeout = "3m"
+  }
+
+  # Copies installclusterbits.sh
+  provisioner "file" {
+    source      = "scripts/deploycluster.sh"
+    destination = "deploycluster.sh"
+   }
+
+  provisioner "remote-exec" {
+    inline = [
+     "chmod +x deploycluster.sh",
+    "./deploycluster.sh ${var.PRIVATE_KEY} ${var.INSTANCE_USERNAME} ${var.name} ${element(aws_instance.mycluster.*.public_dns, 0)}",
+    ]
+  }
+  depends_on = [
+    "null_resource.configure-cluster-ips"
+  ]
+
 }
 
 

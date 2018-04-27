@@ -1,14 +1,15 @@
 #!/bin/bash
 
-# sleep until instance is ready
+#Setup Passwordless SSH
+ssh-keygen -q -N '' -f ~/.ssh/id_rsa
 
-cat >> /etc/hosts << EOF
-$1 $2
+for HOST in $(cat hosts); do cat ~/.ssh/id_rsa.pub | ssh -i $1 $2@$HOST  'cat >> ~/.ssh/authorized_keys'; done
 
-export UAA_DEFAULT_USER_PW=$2
-export UAA_DEFAULT_USER_EMAIL=$3
-EOF
+cd $3
 
-cbd start
+./bin/alluxio bootstrapConf $4
+./bin/alluxio copyDir conf
 
-#curl -Ls https://s3-us-west-2.amazonaws.com/cb-cli/cb-cli_2.5.0_Linux_x86_64.tgz | sudo tar -xz -C /bin cb
+./bin/alluxio format
+./bin/alluxio-start.sh all SudoMount
+./bin/alluxio runTests
