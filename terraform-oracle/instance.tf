@@ -73,7 +73,7 @@ resource "null_resource" "configure-cluster-ips" {
       "sudo echo '${join("\n", slice(aws_instance.mycluster.*.private_dns,1,var.count_instances))}' > ~/${var.name}/conf/workers",
       "sudo su -c \"echo '${join("\n", formatlist("%s  %s", aws_instance.mycluster.*.private_ip, aws_instance.mycluster.*.private_dns))}' >> /etc/hosts\"",
       #Setup Passwordless SSH
-      "cat \"${tls_private_key.main.public_key_openssh}\" >> ~/.ssh/authorized_keys",
+      "cat \"${tls_private_key.ssh-keypair-data.public_key_openssh}\" >> ~/.ssh/authorized_keys",
     ]
   }
 }
@@ -98,8 +98,8 @@ resource "null_resource" "configure-cluster-master" {
 
   provisioner "remote-exec" {
     inline = [
-     "cat \"${tls_private_key.main.public_key_openssh}\" >> ~/.ssh/id_rsa.pub", 
-     "echo \"${tls_private_key.main.private_key_pem}\" > ~/.ssh/id_rsa",
+     "cat \"${tls_private_key.ssh-keypair-data.public_key_openssh}\" >> ~/.ssh/id_rsa.pub", 
+     "echo \"${tls_private_key.ssh-keypair-data.private_key_pem}\" > ~/.ssh/id_rsa",
      "chmod 600 ~/.ssh/id_rsa",
      "chmod +x deploycluster.sh",
      "./deploycluster.sh ${var.name} ${element(aws_instance.mycluster.*.private_dns, 0)}",
