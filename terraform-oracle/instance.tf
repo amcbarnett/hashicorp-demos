@@ -26,7 +26,7 @@ resource "aws_instance" "mycluster" {
   key_name = "${var.SSH_KEY_NAME}"
 
   tags {
-    Name = "${var.name}-${count.index}"
+    Name = "${var.name}-cluster-${count.index}"
     TTL = 72
   }
 
@@ -94,7 +94,7 @@ resource "null_resource" "configure-cluster-master" {
   provisioner "remote-exec" {
     inline = [
      "chmod +x deploycluster.sh",
-    "./deploycluster.sh ${var.PRIVATE_KEY} ${var.INSTANCE_USERNAME} ${var.name} ${element(aws_instance.mycluster.*.public_dns, 0)}",
+    "./deploycluster.sh ${var.PRIVATE_KEY} ${var.INSTANCE_USERNAME} ${var.name} ${element(aws_instance.mycluster.*.private_dns, 0)}",
     ]
   }
   depends_on = [
