@@ -61,7 +61,7 @@ resource "null_resource" "configure-cluster-ips" {
   provisioner "remote-exec" {
     inline = [
       "sudo echo '${join("\n", aws_instance.mycluster.*.public_ip)}' >> hosts",
-      "sudo su -c "echo '${join("\n", formatlist("%s  %s", aws_instance.mycluster.*.public_ip, aws_instance.mycluster.*.public_dns))}' >> /etc/hosts"",
+      "sudo su -c \"echo '${join("\n", formatlist("%s  %s", aws_instance.mycluster.*.public_ip, aws_instance.mycluster.*.public_dns))}' >> /etc/hosts\"",
     ]
   }
 }
