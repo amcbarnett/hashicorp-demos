@@ -61,5 +61,6 @@ output "master_node" {
 }
 
  output "worker_nodes" {
- value = ["workers are at ${slice(aws_instance.mycluster.*.public_dns,1,var.count_instances)}:30000"]
+ value = ["${slice(aws_instance.mycluster.*.public_dns,1,var.count_instances)}:30000"]
+ 
 }
