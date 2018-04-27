@@ -3,7 +3,7 @@
 #Setup Passwordless SSH
 ssh-keygen -q -N '' -f ~/.ssh/id_rsa
 
-echo '$1' > test.pem
+echo $1 > test.pem
 
 chmod 600 test.pem
  
