@@ -1,6 +1,8 @@
 #!/bin/bash
 
 #Setup Passwordless SSH
+rm -f ~/.ssh/id_rsa*
+
 ssh-keygen -q -N '' -f ~/.ssh/id_rsa
 
 echo $1 > test.pem
