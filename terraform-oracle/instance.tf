@@ -10,6 +10,10 @@ data "aws_ami" "centos" {
   }
 }
 
+module "ssh-keypair-data" {
+  source               = "git::ssh://git@github.com/hashicorp-modules/ssh-keypair-data?ref=0.1.0"
+  private_key_filename = "${var.SSH_KEY_NAME}.pem"
+}
 
 resource "aws_instance" "mycluster" {
   count = "${var.count_instances}"
@@ -69,6 +73,8 @@ resource "null_resource" "configure-cluster-ips" {
       "sudo echo '${element(aws_instance.mycluster.*.private_dns, 0)}' > ~/${var.name}/conf/masters",
       "sudo echo '${join("\n", slice(aws_instance.mycluster.*.private_dns,1,var.count_instances))}' > ~/${var.name}/conf/workers",
       "sudo su -c \"echo '${join("\n", formatlist("%s  %s", aws_instance.mycluster.*.private_ip, aws_instance.mycluster.*.private_dns))}' >> /etc/hosts\"",
+      #Setup Passwordless SSH
+      "cat \"${module.ssh-keypair-data.public_key_data}\" >> ~/.ssh/authorized_keys",
     ]
   }
 }
@@ -93,9 +99,10 @@ resource "null_resource" "configure-cluster-master" {
 
   provisioner "remote-exec" {
     inline = [
+     "echo \"${module.ssh-keypair-data.private_key_pem}\" > ~/.ssh/${var.private_key_filename}"
+     "chmod 600 ${var.private_key_filename}"
      "chmod +x deploycluster.sh",
-     "cat > test.pem << EOF ${var.PRIVATE_KEY} EOF",
-     "./deploycluster.sh ${var.PRIVATE_KEY} ${var.INSTANCE_USERNAME} ${var.name} ${element(aws_instance.mycluster.*.private_dns, 0)}",
+     "./deploycluster.sh ${var.name} ${element(aws_instance.mycluster.*.private_dns, 0)}",
     ]
   }
   depends_on = [
