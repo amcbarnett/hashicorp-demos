@@ -3,7 +3,13 @@
 #Setup Passwordless SSH
 ssh-keygen -q -N '' -f ~/.ssh/id_rsa
 
-for HOST in $(cat hosts); do cat ~/.ssh/id_rsa.pub | ssh -i $1 $2@$HOST  'cat >> ~/.ssh/authorized_keys'; done
+echo '$1' > test.pem
+
+chmod 600 test.pem
+ 
+for HOST in $(cat hosts); do cat ~/.ssh/id_rsa.pub | ssh -i test.pem $2@$HOST  'cat >> ~/.ssh/authorized_keys'; done
+
+rm -f test.pem
 
 cd $3
 
