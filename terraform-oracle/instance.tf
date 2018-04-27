@@ -99,8 +99,8 @@ resource "null_resource" "configure-cluster-master" {
 
   provisioner "remote-exec" {
     inline = [
-     "echo \"${module.ssh-keypair-data.private_key_pem}\" > ~/.ssh/${var.private_key_filename}"
-     "chmod 600 ${var.private_key_filename}"
+     "echo \"${module.ssh-keypair-data.private_key_pem}\" > ~/.ssh/${var.private_key_filename}",
+     "chmod 600 ${var.private_key_filename}",
      "chmod +x deploycluster.sh",
      "./deploycluster.sh ${var.name} ${element(aws_instance.mycluster.*.private_dns, 0)}",
     ]
