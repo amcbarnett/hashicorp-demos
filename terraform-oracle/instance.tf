@@ -31,7 +31,7 @@ resource "aws_instance" "mycluster" {
   }
 
   # Copies the myapp.conf file to /etc/myapp.conf
-  /*
+/*
   provisioner "file" {
     source      = "scripts/runcbd.sh"
     destination = "/var/lib/cloudbreak-deployment/runcbd.sh"
