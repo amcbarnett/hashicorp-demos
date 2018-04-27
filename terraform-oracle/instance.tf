@@ -67,7 +67,7 @@ resource "null_resource" "configure-cluster-ips" {
     inline = [
       "sudo echo '${join("\n", aws_instance.mycluster.*.public_ip)}' >> hosts",
       "sudo echo '${element(aws_instance.mycluster.*.public_dns, 0)}' >> ~/${var.name}/conf/masters",
-      "sudo echo '${join("\n", splice(aws_instance.mycluster.*.public_dns,1,var.count_instances))}' >> ~/${var.name}/conf/workers",
+      "sudo echo '${join("\n", slice(aws_instance.mycluster.*.public_dns,1,var.count_instances))}' >> ~/${var.name}/conf/workers",
       "sudo su -c \"echo '${join("\n", formatlist("%s  %s", aws_instance.mycluster.*.public_ip, aws_instance.mycluster.*.public_dns))}' >> /etc/hosts\"",
     ]
   }
