@@ -5,11 +5,11 @@ rm -f ~/.ssh/id_rsa*
 
 ssh-keygen -q -N '' -f ~/.ssh/id_rsa
 
-echo $1 > test.pem
+cat $1 > test.pem
 
 chmod 600 test.pem
  
-for HOST in $(cat hosts); do cat ~/.ssh/id_rsa.pub | ssh -i test.pem $2@$HOST  'cat >> ~/.ssh/authorized_keys'; done
+for HOST in $(cat hosts); do cat ~/.ssh/id_rsa.pub | ssh -o "StrictHostKeyChecking no" -i test.pem $2@$HOST  'cat >> ~/.ssh/authorized_keys'; done
 
 rm -f test.pem
 
