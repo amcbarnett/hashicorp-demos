@@ -43,3 +43,41 @@ tags {
   }
 
 }
+
+resource "aws_security_group" "cluster_sg" {
+  name = "${var.name}-cluster-sg"
+  description = "security group that allows cluster to talk to each other"
+  egress {
+      from_port = 0
+      to_port = 0
+      protocol = "-1"
+      cidr_blocks = ["0.0.0.0/0"]
+  }
+
+  ingress {
+      from_port = 19998
+      to_port = 20003
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+  } 
+
+  ingress {
+      from_port = 29997
+      to_port = 30004
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+  } 
+
+  ingress {
+      from_port = 39999
+      to_port = 39999
+      protocol = "tcp"
+      cidr_blocks = ["0.0.0.0/0"]
+  }
+
+ 
+tags {
+    Name = "${var.name}_allow-cluster"
+  }
+
+}

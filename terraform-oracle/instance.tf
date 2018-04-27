@@ -19,7 +19,7 @@ resource "aws_instance" "mycluster" {
   instance_type = "${var.INSTANCE_TYPE}"
 
   # the security group
-  vpc_security_group_ids = ["${aws_security_group.allow-sg.id}"]
+  vpc_security_group_ids = ["${aws_security_group.allow-sg.id},${aws_security_group.cluster_sg}"]
 
   # the public SSH key
   #key_name = "${aws_key_pair.mykeypair.key_name}"
