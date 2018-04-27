@@ -53,7 +53,7 @@ resource "aws_instance" "mycluster" {
 
 # Need to wait until all resources provision to get the IP and HostNames
 resource "null_resource" "configure-cluster-ips" {
-
+  count = "${var.count_instances}"
   connection {
     user = "${var.INSTANCE_USERNAME}"
     private_key = "${var.PRIVATE_KEY}"
@@ -75,8 +75,7 @@ resource "null_resource" "configure-cluster-ips" {
 
 # After configuring IPs, deploy cluster from Master Node
 resource "null_resource" "configure-cluster-master" {
-  count = "${var.count_instances}"
-
+  
   connection {
     user = "${var.INSTANCE_USERNAME}"
     private_key = "${var.PRIVATE_KEY}"
