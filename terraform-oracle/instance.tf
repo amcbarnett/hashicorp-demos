@@ -30,14 +30,6 @@ resource "aws_instance" "mycluster" {
     TTL = 72
   }
 
-  # Copies the myapp.conf file to /etc/myapp.conf
-/*
-  provisioner "file" {
-    source      = "scripts/runcbd.sh"
-    destination = "/var/lib/cloudbreak-deployment/runcbd.sh"
-   }
-   */
-
  provisioner "remote-exec" {
    inline = [
     "sudo yum install -y java-1.8.0-openjdk-devel",
