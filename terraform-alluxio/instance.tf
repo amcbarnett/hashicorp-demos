@@ -50,6 +50,3 @@ resource "aws_instance" "mycluster" {
      private_key = "${var.PRIVATE_KEY}"
     }
 }
-
-
-
