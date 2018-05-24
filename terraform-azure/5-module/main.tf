@@ -4,7 +4,7 @@ terraform {
 
 variable "location" {
   description = "Azure location in which to create resources"
-  default = "East US"
+  default     = "East US"
 }
 
 variable "windows_dns_prefix" {
@@ -13,19 +13,19 @@ variable "windows_dns_prefix" {
 
 variable "admin_password" {
   description = "admin password for Windows VM"
-  default = "pTFE1234!"
+  default     = "pTFE1234!"
 }
 
 module "windowsserver" {
-  source              = "app.terraform.io/Cloud-Operations/compute/azurerm"
-  #source             = "Azure/compute/azurerm"
-  version             = "1.1.5"
-  location            = "${var.location}"
-  vm_hostname         = "demo-ancil-vm"
-  admin_password      = "${var.admin_password}"
-  vm_os_simple        = "WindowsServer"
-  public_ip_dns       = ["${var.windows_dns_prefix}"]
-  vnet_subnet_id      = "${module.network.vnet_subnets[0]}"
+  #source              = "app.terraform.io/Cloud-Operations/compute/azurerm"
+  source         = "Azure/compute/azurerm"
+  version        = "1.1.5"
+  location       = "${var.location}"
+  vm_hostname    = "demo-ancil-vm"
+  admin_password = "${var.admin_password}"
+  vm_os_simple   = "WindowsServer"
+  public_ip_dns  = ["${var.windows_dns_prefix}"]
+  vnet_subnet_id = "${module.network.vnet_subnets[0]}"
 }
 
 module "network" {
@@ -36,6 +36,6 @@ module "network" {
   allow_ssh_traffic   = true
 }
 
-output "windows_vm_public_name"{
+output "windows_vm_public_name" {
   value = "${module.windowsserver.public_ip_dns_name}"
 }
