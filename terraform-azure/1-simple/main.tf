@@ -4,6 +4,6 @@ resource "azurerm_resource_group" "mytfirstrg" {
   location = "East US"
 
   tags {
-    environment = "Production"
+    environment = "Development"
   }
 }
