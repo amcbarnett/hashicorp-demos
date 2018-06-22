@@ -11,7 +11,7 @@ variable "resource_group_location" {
 variable "resource_group_tag" {
   type        = "string"
   default     = "Production"
-  description = "Production resource tag"
+  description = "Production resource TAGS"
 }
 
 variable "vn_name" {
