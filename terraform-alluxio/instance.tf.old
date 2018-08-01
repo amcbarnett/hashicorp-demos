@@ -17,7 +17,7 @@ resource "aws_instance" "mycluster" {
   #ami           = "${var.ami_id}"
   ami = "${data.aws_ami.centos.id}"
   instance_type = "${var.INSTANCE_TYPE}"
-  name          = "${var.name}-cluster-${count.index}"
+ 
 
   # the security group
   vpc_security_group_ids = ["${aws_security_group.allow-sg.id}","${aws_security_group.cluster_sg.id}"]
