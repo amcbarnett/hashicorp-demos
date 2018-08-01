@@ -5,12 +5,14 @@ resource "tls_private_key" "ssh-keypair-data" {
 # Need to wait until all resources provision to get the IP and HostNames.  hence the null ressource
 resource "null_resource" "configure-cluster-ips" {
   count = "${var.count_instances}"
+
   connection {
-    user = "${var.INSTANCE_USERNAME}"
+    user        = "${var.INSTANCE_USERNAME}"
     private_key = "${var.PRIVATE_KEY}"
-    type = "ssh"
+    type        = "ssh"
+
     #agent = true
-    host = "${element(aws_instance.mycluster.*.public_ip, count.index)}"
+    host    = "${element(aws_instance.mycluster.*.public_ip, count.index)}"
     timeout = "3m"
   }
 
@@ -20,6 +22,7 @@ resource "null_resource" "configure-cluster-ips" {
       "sudo echo '${element(aws_instance.mycluster.*.private_dns, 0)}' > ~/${var.name}/conf/masters",
       "sudo echo '${join("\n", slice(aws_instance.mycluster.*.private_dns,1,var.count_instances))}' > ~/${var.name}/conf/workers",
       "sudo su -c \"echo '${join("\n", formatlist("%s  %s", aws_instance.mycluster.*.private_ip, aws_instance.mycluster.*.private_dns))}' >> /etc/hosts\"",
+
       #Setup Passwordless SSH
       "echo \"${tls_private_key.ssh-keypair-data.public_key_openssh}\" >> ~/.ssh/authorized_keys",
     ]
@@ -27,7 +30,7 @@ resource "null_resource" "configure-cluster-ips" {
 }
 
 # After configuring IPs, deploy cluster from Master Node
-resource "null_resource" "configure-cluster-master" {
+/*resource "null_resource" "configure-cluster-master" {
   
   connection {
     user = "${var.INSTANCE_USERNAME}"
@@ -57,4 +60,5 @@ resource "null_resource" "configure-cluster-master" {
     "null_resource.configure-cluster-ips"
   ]
 
-}
+} */
+
