@@ -6,4 +6,4 @@ curl -Ls http://downloads.alluxio.org/downloads/files/1.7.1/alluxio-1.7.1-hadoop
 
 mv alluxio-1.7.1-hadoop-2.8 /home/centos/${cluster_name}
 
-chmown -R centos /home/centos/${cluster_name}
+chown -R centos:centos /home/centos/${cluster_name}
