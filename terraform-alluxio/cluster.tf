@@ -2,6 +2,8 @@ resource "tls_private_key" "ssh-keypair-data" {
   algorithm = "RSA"
 }
 
+#Description
+
 # Need to wait until all resources provision to get the IP and HostNames.  hence the null ressource
 resource "null_resource" "configure-cluster-ips" {
   count = "${var.count_instances}"
