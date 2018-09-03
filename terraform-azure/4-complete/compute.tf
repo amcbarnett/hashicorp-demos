@@ -16,7 +16,7 @@ resource "azurerm_virtual_machine" "myterraformvm" {
   storage_image_reference {
     publisher = "Canonical"
     offer     = "UbuntuServer"
-    sku       = "16.04.0-LTS"
+    sku       = "16.04.0-LTD"
     version   = "latest"
   }
 
