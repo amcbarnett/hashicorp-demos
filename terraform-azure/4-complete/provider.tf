@@ -7,10 +7,10 @@
 }*/
 
 provider "azurerm" {
-  subscription_id = "${data.vault_generic_secret.cyberark.data.subscription_id["Value"]}"
-  client_id       = "${data.vault_generic_secret.cyberark.data.client_id["Value"]}"
-  client_secret   = "${data.vault_generic_secret.cyberark.data.client_secret["Value"]}"
-  tenant_id       = "${data.vault_generic_secret.cyberark.data.tenant_id["Value"]}"
+  subscription_id = "${data.vault_generic_secret.cyberark.data.subscription_id["value"]}"
+  client_id       = "${data.vault_generic_secret.cyberark.data.client_id["value"]}"
+  client_secret   = "${data.vault_generic_secret.cyberark.data.client_secret["value"]}"
+  tenant_id       = "${data.vault_generic_secret.cyberark.data.tenant_id["value"]}"
 }
 
 provider "vault" {
