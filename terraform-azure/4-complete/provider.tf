@@ -9,8 +9,8 @@
 provider "azurerm" {
   subscription_id = "${data.vault_generic_secret.cyberark.data["subscription_id"]}"
   client_id       = "${data.vault_generic_secret.cyberark.data["client_id"]}"
-  client_secret   = "${data.vault_generic_secret.cyberark.data.client_secret["client_secret"]}"
-  tenant_id       = "${data.vault_generic_secret.cyberark.data.tenant_id["tenant_id"]}"
+  client_secret   = "${data.vault_generic_secret.cyberark.data["client_secret"]}"
+  tenant_id       = "${data.vault_generic_secret.cyberark.data["tenant_id"]}"
 }
 
 provider "vault" {
