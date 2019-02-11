@@ -11,5 +11,5 @@ provider "vault" {
 
 resource "vault_auth_backend" "example" {
   type = "${var.test_vault_auth}"
-  path = ${lookup(vault_auth_map, var.test_vault_auth)}"
+  path = "${lookup(vault_auth_map, var.test_vault_auth)}"
 }
