@@ -1,0 +1,134 @@
+#Create a StatefulSet
+
+cat <<EOF > vaultstatefulset.yaml
+apiVersion: apps/v1
+kind: StatefulSet
+metadata: 
+  labels: 
+    app: vault
+  name: vault
+spec: 
+  replicas: 3
+  selector: 
+    matchLabels: 
+      app: vault
+  serviceName: vault
+  template: 
+    metadata: 
+      labels: 
+        app: vault
+    spec: 
+      affinity: 
+        podAntiAffinity: 
+          requiredDuringSchedulingIgnoredDuringExecution: 
+            - 
+              labelSelector: 
+                matchExpressions: 
+                  - 
+                    key: app
+                    operator: In
+                    values: 
+                      - vault
+              topologyKey: kubernetes.io/hostname
+      containers: 
+        -
+          command: ["vault", "server", "-config", "/vault/config/vault.hcl"]
+          env: 
+            - 
+              name: HOST_IP
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: status.hostIP
+            - 
+              name: POD_IP
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: status.podIP
+            - 
+              name: NAMESPACE
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: metadata.namespace
+          image: "vault:1.0.1"
+          imagePullPolicy: IfNotPresent
+          lifecycle: 
+            preStop: 
+              exec: 
+                command: 
+                  - "vault operator step-down"
+          name: vault
+          ports: 
+            - 
+              containerPort: 8200
+              name: vault-port
+              protocol: TCP
+            - 
+              containerPort: 8201
+              name: cluster-port
+              protocol: TCP
+          securityContext: 
+            capabilities: 
+              add: 
+                - IPC_LOCK
+          volumeMounts: 
+            - 
+              mountPath: /vault/config/vault.hcl
+              name: configurations
+              subPath: vault.hcl
+          volumeMounts: 
+            - 
+              mountPath: /vault/config/vaultapi.hcl
+              name: configurations
+              subPath: vaultapi.hcl
+        - 
+          args: 
+            - agent
+            - "-retry-join=consul-0.consul.$(NAMESPACE).svc.cluster.local"
+            - "-retry-join=consul-1.consul.$(NAMESPACE).svc.cluster.local"
+            - "-retry-join=consul-2.consul.$(NAMESPACE).svc.cluster.local"
+            - "-domain=cluster.local"
+            - "-datacenter=dc1"
+            - "-disable-host-node-id"
+            - "-client=127.0.0.1"
+            - "-bind=$(POD_IP)"
+          env: 
+            - 
+              name: POD_IP
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: status.podIP
+            - 
+              name: NAMESPACE
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: metadata.namespace
+          image: "consul:1.4.0"
+          name: consul-vault-agent
+          volumeMounts: 
+            - 
+              mountPath: /consul/data
+              name: data
+      terminationGracePeriodSeconds: 10
+      volumes: 
+        - 
+          configMap: 
+            name: vault
+          name: configurations
+  volumeClaimTemplates: 
+    - 
+      metadata: 
+        name: data
+      spec: 
+        accessModes: 
+          - ReadWriteOnce
+        resources: 
+          requests: 
+            storage: 1Gi
+EOF
+
+
+kubectl create -f vaultstatefulset.yaml -n vault-deploy
+
+#Run in a seperate terminal window
+#Check vault UI
+kubectl port-forward vault-0 8200:8200
