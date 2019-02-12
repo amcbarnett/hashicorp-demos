@@ -1,7 +1,6 @@
 #Create a StatefulSet
 
 cat <<EOF > vaultstatefulset.yaml
-cat <<EOF > vaultstatefulset.yaml
 apiVersion: apps/v1
 kind: StatefulSet
 metadata: 
