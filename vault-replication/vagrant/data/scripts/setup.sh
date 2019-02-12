@@ -11,13 +11,13 @@
 # systemctl start consul
 # systemctl start vault
 
-if [ "$#" -ne 3 ]; then
-  echo "You must supply the IP addresses of all three nodes with the local machine's IP address first."
-  echo "$0 172.31.10.8 172.31.10.20 172.31.10.35"
+if [ "$#" -ne 1 ]; then
+  echo "You must supply the IP address of the node upon which you're running this script."
+  echo "$0 192.168.56.106"
 fi
 
-CONSUL_VERSION="1.2.2"
-VAULT_VERSION="0.11.3"
+CONSUL_VERSION="1.4.2"
+VAULT_VERSION="1.0.2"
 MYIP=$1
 MACHINE1=$2
 MACHINE2=$3
@@ -223,8 +223,8 @@ createuser consul
 
 mkdir binaries && cd binaries
 python -mplatform | grep -qi Ubuntu && sudo apt -y install wget unzip || sudo yum -y install wget unzip
-wget https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/vault/ent/${VAULT_VERSION}/vault-enterprise_0.10.4%2Bent_linux_amd64.zip
-wget https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/consul/ent/${CONSUL_VERSION}/consul-enterprise_1.2.2%2Bent_linux_amd64.zip
+wget https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/vault/ent/${VAULT_VERSION}/vault-enterprise_${VAULT_VERSION}%2Bent_linux_amd64.zip
+wget https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/consul/ent/${CONSUL_VERSION}/consul-enterprise_${VAULT_VERSION}%2Bent_linux_amd64.zip
 unzip consul-enterprise_${CONSUL_VERSION}+ent_linux_amd64.zip
 unzip vault-enterprise_${VAULT_VERSION}+ent_linux_amd64.zip
 cp -rp consul /usr/local/bin/consul
