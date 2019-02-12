@@ -11,14 +11,12 @@
 # systemctl start consul
 # systemctl start vault
 
-if [ "$#" -ne 1 ]; then
-  echo "You must supply the IP address of the node upon which you're running this script. Probably the IP bound to eth1"
-  echo "$0 192.168.56.106"
-fi
-
+CLUSTER_COUNT=$#
 CONSUL_VERSION="1.4.2"
 VAULT_VERSION="1.0.2"
 MYIP=$1
+MACHINE1=$2
+MACHINE2=$3
 
 # Set up some directories
 mkdir -pm 0755 /etc/vault.d
@@ -75,20 +73,40 @@ Description=Consul Online
 RefuseManualStart=true
 EOF
 
+if [ "$#" -eq 1 ]; then
 # Configure the Consul JSON config
-cat << EOF > /etc/consul.d/consul.json
-{
-  "server": true,
-  "bootstrap_expect": 3,
-  "leave_on_terminate": true,
-  "advertise_addr": "${MYIP}",
-  "retry_join": ["${MYIP"],
-  "data_dir": "/opt/consul/data",
-  "client_addr": "0.0.0.0",
-  "log_level": "INFO",
-  "ui": true
-}
-EOF
+    cat << EOF > /etc/consul.d/consul.json
+      {
+        "server": true,
+        "leave_on_terminate": true,
+        "advertise_addr": "${MYIP}",
+        "data_dir": "/opt/consul/data",
+        "client_addr": "0.0.0.0",
+        "log_level": "INFO",
+        "ui": true
+      }
+      EOF
+    elif [ "$#" -eq 3 ]; then
+      # Three node cluster
+      cat << EOF > /etc/consul.d/consul.json
+      {
+        "server": true,
+        "bootstrap_expect": 3,
+        "leave_on_terminate": true,
+        "advertise_addr": "${MYIP}",
+        "retry_join": ["${MACHINE1}","${MACHINE2}"],
+        "data_dir": "/opt/consul/data",
+        "client_addr": "0.0.0.0",
+        "log_level": "INFO",
+        "ui": true
+      }
+      EOF
+    else
+      echo "Please provide either 1 or 3 IP addresses (single node or 3 node cluster)"
+      exit 1
+fi
+  
+
 
 # Set up the Consul service script
 cat << EOF > /etc/systemd/system/consul.service
@@ -229,12 +247,12 @@ cp -rp consul /usr/local/bin/consul
 cp -rp vault /usr/local/bin/vault
 
 chown -R consul:consul /etc/consul.d /opt/consul
-chmod -R 0644 /etc/consul.d/*
+chmod -R 0644 /etc/consul.d/
 chmod 0755 /usr/local/bin/consul
 chown consul:consul /usr/local/bin/consul
 
 chown -R vault:vault /etc/vault.d /etc/ssl/vault
-chmod -R 0644 /etc/vault.d/*
+chmod -R 0644 /etc/vault.d/
 chmod 0755 /usr/local/bin/vault
 chown vault:vault /usr/local/bin/vault
 
