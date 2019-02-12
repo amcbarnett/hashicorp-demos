@@ -19,8 +19,8 @@ kubectl exec -it ${VAULT_POD} -c ${VAULT_SERVICE} -- /bin/sh -c 'VAULT_ADDR=http
 export VAULT_UNSEAL="xxx"
 export VAULT_TOKEN="xxx"
 
-for v in `kubectl get pods | grep vault | cut -f1 -d' '`; do kubectl exec -ti $v -c vault -- /bin/sh -c 'VAULT_ADDR=http://localhost:8200 vault operator unseal bPV4zv3ezMR29ipBPW8jDfHh7CjsIolRSoiPBOMHhls=
-'; done
+for v in `kubectl get pods | grep vault | cut -f1 -d' '`; do kubectl exec -ti $v -c vault -- /bin/sh -c "VAULT_ADDR=http://localhost:8200 vault operator unseal ${VAULT_UNSEAL}
+"; done
 
 for v in `kubectl get pods | grep vault | cut -f1 -d' '`; do kubectl exec -ti $v -c vault -- /bin/sh -c 'VAULT_ADDR=http://localhost:8200 vault status'; done
 
@@ -109,8 +109,10 @@ export CLUSTER_NAME="gke_${GOOGLE_CLOUD_PROJECT}_${GOOGLE_ZONE}_${GOOGLE_CLUSTER
 export VAULT_SA_NAME=$(kubectl get serviceaccount vault-auth -o jsonpath="{.secrets[*]['name']}")
 export SA_JWT_TOKEN=$(kubectl get secret ${VAULT_SA_NAME} -o jsonpath="{.data.token}" | base64 --decode; echo)
 export K8S_CACERT=$(kubectl get secret ${VAULT_SA_NAME} -o jsonpath="{.data['ca\.crt']}" | base64 --decode; echo)
-export K8S_HOST=$(kubectl exec -it vault-0 -c vault -- /bin/sh -c 'echo $KUBERNETES_SERVICE_HOST')
-
+#export K8S_HOST=$(kubectl exec -it vault-0 -c vault -- /bin/sh -c 'echo $KUBERNETES_SERVICE_HOST')
+#echo $K8S_HOST | tr -d '\n'
+#export K8S_HOST=$(kubectl exec -it vault-0 -c vault -- /bin/sh -c 'echo $KUBERNETES_SERVICE_HOST | tr -d \'\n\' ')
+export K8S_HOST=$(kubectl exec -it vault-0 -c vault -- /bin/sh -c "echo \$KUBERNETES_SERVICE_HOST | tr -d '\n' ")
 
 export VAULT_SERVICE=$(kubectl get svc -l app=vault -o jsonpath="{.items[0].metadata.name}")
 
@@ -157,24 +159,24 @@ vault write auth/kubernetes/role/testauth \
 
 
 vault write auth/kubernetes/role/app1 \
-    bound_service_account_names=vault-auth \
+    bound_service_account_names=k8s-app1 \
     bound_service_account_namespaces=vault-deploy \
-    policies=test-policy2 \
+    policies=test-policy1 \
     ttl=24h
 
 
 vault write auth/kubernetes/role/app2 \
-    bound_service_account_names=vault-auth \
+    bound_service_account_names=k8s-app2 \
     bound_service_account_namespaces=vault-deploy \
-    policies=test-policy3 \
+    policies=test-policy2 \
     ttl=24h
 
 
 
 ---------------------
 
-To test
-Create a Temporary Image:
+#To test K8s Auth with service account vault-auth
+#Create a Temporary Image:
 
 kubectl run --generator=run-pod/v1 tmp  -i --tty --serviceaccount=vault-auth --image alpine
 
@@ -198,12 +200,13 @@ X_VAULT_TOKEN=$(echo $VAULT_K8S_LOGIN | jq -r '.auth.client_token')
 
 ---------------------
 
-To test
-Create a Temporary Image:
+#To test K8s Auth with service account k8s-app1
+#Create a Temporary Image:
 
-kubectl run --generator=run-pod/v1 tmp  -i --tty --serviceaccount=vault-auth --image alpine
+kubectl run --generator=run-pod/v1 tmp-app1  -i --tty --serviceaccount=k8s-app1 --image alpine
 
-kubectl attach tmp -c tmp -i -t
+
+kubectl attach tmp-app1 -c tmp-app1 -i -t
 
 # some preq
 $ apk update
@@ -213,7 +216,7 @@ $ apk add curl postgresql-client jq
 export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 echo ${KUBE_TOKEN}
 
-export VAULT_K8S_LOGIN=$(curl --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "testauth"}' http://vault:8200/v1/auth/kubernetes/login)
+export VAULT_K8S_LOGIN=$(curl --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "k8s-app1"}' http://vault:8200/v1/auth/kubernetes/login)
 
 echo $VAULT_K8S_LOGIN | jq
 
@@ -221,13 +224,12 @@ X_VAULT_TOKEN=$(echo $VAULT_K8S_LOGIN | jq -r '.auth.client_token')
 
 ------------------------
 
-To test Service account k8s-app2  and name space vault-deploy
+#To test K8s Auth with service account k8s-app2
+#Create a Temporary Image:
 
-Create a Temporary Image:
+kubectl run --generator=run-pod/v1 tmp-app2  -i --tty --serviceaccount=k8s-app2 --image alpine
 
-kubectl run --generator=run-pod/v1 tmp2  -i --tty --serviceaccount=k8s-app2 --image alpine
-
-kubectl attach tmp -c tmp -i -t
+kubectl attach tmp-app2 -c tmp-app2 -i -t
 
 # some preq
 $ apk update
@@ -237,7 +239,7 @@ $ apk add curl postgresql-client jq
 export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 echo ${KUBE_TOKEN}
 
-export VAULT_K8S_LOGIN=$(curl --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "testauth"}' http://vault:8200/v1/auth/kubernetes/login)
+export VAULT_K8S_LOGIN=$(curl --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "k8s-app2"}' http://vault:8200/v1/auth/kubernetes/login)
 
 echo $VAULT_K8S_LOGIN | jq
 
