@@ -27,30 +27,14 @@ for v in `kubectl get pods | grep vault | cut -f1 -d' '`; do kubectl exec -ti $v
 
 #export VAULT_TOKEN=$(kubectl logs $VAULT_POD vault | grep 'Root Token' | cut -d' ' -f3)
 
-export VAULT_ADDR=http://127.0.0.1:8200
+#export VAULT_ADDR=http://127.0.0.1:8200
 
 # run this on a second terminal
-kubectl port-forward $VAULT_POD 8200
+#kubectl port-forward $VAULT_POD 8200
 
-echo $VAULT_TOKEN | vault login -
-vault status
+#echo $VAULT_TOKEN | vault login -
+#vault status
 
--------------------------------------------
-
-Creating a Vault policy to a specific role:
-$ cat > postgres-policy.hcl <<EOF
-path "database/creds/postgres-role" {
-  capabilities = ["read"]
-}
-path "sys/leases/renew" {
-  capabilities = ["create"]
-}
-path "sys/leases/revoke" {
-  capabilities = ["update"]
-}
-EOF
-$ vault policy write postgres-policy postgres-policy.hcl
-Success! Uploaded policy: postgres-policy
 
 -------------------------------------------
 
@@ -63,6 +47,11 @@ Success! Uploaded policy: postgres-policy
 #kubectl create clusterrolebinding role-tokenreview-binding --clusterrole=system:auth-delegator --serviceaccount=k8s-app1:vault-app
 
 # 2. Grant service account ability to access the TokenReviewer API via RBAC
+
+
+kubectl create serviceaccount k8s-app1
+kubectl create serviceaccount k8s-app2
+
 $ cat > vault-serviceaccount.yml <<EOF
 apiVersion: v1
 kind: ServiceAccount
@@ -82,6 +71,12 @@ subjects:
 - kind: ServiceAccount
   name: vault-auth
   namespace: vault-deploy
+- kind: ServiceAccount
+  name: k8s-app1
+  namespace: vault-deploy
+- kind: ServiceAccount
+  name: k8s-app2
+  namespace: vault-deploy
 EOF
 
 kubectl apply -f vault-serviceaccount.yml
@@ -92,7 +87,7 @@ kubectl apply -f vault-serviceaccount.yml
 
 
 # 3. Enable Kubernetes Auth Method
-export LB_IP="$(gcloud compute addresses describe vault --region us-east1 --format 'value(address)')"
+#export LB_IP="$(gcloud compute addresses describe vault --region us-east1 --format 'value(address)')"
 
 export GOOGLE_CLOUD_PROJECT="mckingdom-gcp"
 export GOOGLE_ZONE="us-east4-a"
@@ -103,12 +98,13 @@ export CLUSTER_NAME="gke_${GOOGLE_CLOUD_PROJECT}_${GOOGLE_ZONE}_${GOOGLE_CLUSTER
 #Note: Command for all clusters: 
 # kubectl config view -o jsonpath='{range .clusters[*]}{.name}{"\t"}{.cluster.server}{"\n"}{end}'
 
-export VAULT_SA_NAME="$(kubectl get serviceaccount vault-auth -o go-template='{{ (index .secrets 0).name }}')"
-export SA_JWT_TOKEN="$(kubectl get secret ${VAULT_SA_NAME} -o go-template='{{ .data.token }}' | base64 --decode)"
-export K8S_HOST="$(kubectl config view --raw \
-    -o go-template="{{ range .clusters }}{{ if eq .name \"${CLUSTER_NAME}\" }}{{ index .cluster \"server\" }}{{ end }}{{ end }}")"
-export K8S_CACERT="$(kubectl config view --raw \
-    -o go-template="{{ range .clusters }}{{ if eq .name \"${CLUSTER_NAME}\" }}{{ index .cluster \"certificate-authority-data\" }}{{ end }}{{ end }}" | base64 --decode)"
+/*
+#export VAULT_SA_NAME="$(kubectl get serviceaccount vault-auth -o go-template='{{ (index .secrets 0).name }}')"
+#export SA_JWT_TOKEN="$(kubectl get secret ${VAULT_SA_NAME} -o go-template='{{ .data.token }}' | base64 --decode)"
+#export K8S_HOST="$(kubectl config view --raw \
+#    -o go-template="{{ range .clusters }}{{ if eq .name \"${CLUSTER_NAME}\" }}{{ index .cluster \"server\" }}{{ end }}{{ end }}")"
+#export K8S_CACERT="$(kubectl config view --raw \
+#    -o go-template="{{ range .clusters }}{{ if eq .name \"${CLUSTER_NAME}\" }}{{ index .cluster \"certificate-authority-data\" }}{{ end }}{{ end }}" | base64 --decode)"
 
 export VAULT_SA_NAME=$(kubectl get serviceaccount vault-auth -o jsonpath="{.secrets[*]['name']}")
 export SA_JWT_TOKEN=$(kubectl get secret ${VAULT_SA_NAME} -o jsonpath="{.data.token}" | base64 --decode; echo)
@@ -119,6 +115,8 @@ export K8S_HOST=$(kubectl exec -it vault-0 -c vault -- /bin/sh -c 'echo $KUBERNE
 export VAULT_SERVICE=$(kubectl get svc -l app=vault -o jsonpath="{.items[0].metadata.name}")
 
 
+echo ${VAULT_SA_NAME}
+echo ${VAULT_SERVICE}
 echo ${SA_JWT_TOKEN}
 echo ${K8S_HOST}
 echo ${K8S_CACERT}
