@@ -9,7 +9,7 @@ export GKE_USER=gke_mckingdom-gcp_us-east4-a_k8s-mcb
 
 kubectl config set-context vault-deploy --namespace=vault-deploy \
   --cluster=${GKE_CLUSTER} \
-  --user={GKE_USER}
+  --user=${GKE_USER}
 
 #Switch Context
 kubectl config use-context vault-deploy 
