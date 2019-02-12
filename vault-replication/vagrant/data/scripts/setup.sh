@@ -222,7 +222,7 @@ createuser consul
 mkdir binaries && cd binaries
 python -mplatform | grep -qi Ubuntu && sudo apt -y install wget unzip || sudo yum -y install wget unzip
 wget https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/vault/ent/${VAULT_VERSION}/vault-enterprise_${VAULT_VERSION}%2Bent_linux_amd64.zip
-wget https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/consul/ent/${CONSUL_VERSION}/consul-enterprise_${VAULT_VERSION}%2Bent_linux_amd64.zip
+wget https://s3-us-west-2.amazonaws.com/hc-enterprise-binaries/consul/ent/${CONSUL_VERSION}/consul-enterprise_${CONSUL_VERSION}%2Bent_linux_amd64.zip
 unzip consul-enterprise_${CONSUL_VERSION}+ent_linux_amd64.zip
 unzip vault-enterprise_${VAULT_VERSION}+ent_linux_amd64.zip
 cp -rp consul /usr/local/bin/consul
