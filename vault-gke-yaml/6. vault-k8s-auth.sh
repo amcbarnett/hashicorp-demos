@@ -196,10 +196,36 @@ X_VAULT_TOKEN=$(echo $VAULT_K8S_LOGIN | jq -r '.auth.client_token')
 
 ---------------------
 
+---------------------
+
 To test
 Create a Temporary Image:
 
 kubectl run --generator=run-pod/v1 tmp  -i --tty --serviceaccount=vault-auth --image alpine
+
+kubectl attach tmp -c tmp -i -t
+
+# some preq
+$ apk update
+$ apk add curl postgresql-client jq
+# fetch the vault token of this specific pod
+
+export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+echo ${KUBE_TOKEN}
+
+export VAULT_K8S_LOGIN=$(curl --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "testauth"}' http://vault:8200/v1/auth/kubernetes/login)
+
+echo $VAULT_K8S_LOGIN | jq
+
+X_VAULT_TOKEN=$(echo $VAULT_K8S_LOGIN | jq -r '.auth.client_token')
+
+------------------------
+
+To test Service account k8s-app2  and name space vault-deploy
+
+Create a Temporary Image:
+
+kubectl run --generator=run-pod/v1 tmp2  -i --tty --serviceaccount=k8s-app2 --image alpine
 
 kubectl attach tmp -c tmp -i -t
 
