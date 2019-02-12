@@ -6,4 +6,8 @@ kubectl create -f consulservice.yaml -n vault-deploy
 kubectl create -f consulstatefulset.yaml -n vault-deploy
 
 #Command to delete pods
-kubectl delete -f consulstatefulset.yaml
+#kubectl delete -f consulstatefulset.yaml
+
+kubectl get service
+kubectl get pods
+
