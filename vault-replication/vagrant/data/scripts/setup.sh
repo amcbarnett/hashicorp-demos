@@ -247,12 +247,12 @@ cp -rp consul /usr/local/bin/consul
 cp -rp vault /usr/local/bin/vault
 
 chown -R consul:consul /etc/consul.d /opt/consul
-chmod -R 0644 /etc/consul.d/
+chmod -R 0644 /etc/consul.d/*
 chmod 0755 /usr/local/bin/consul
 chown consul:consul /usr/local/bin/consul
 
 chown -R vault:vault /etc/vault.d /etc/ssl/vault
-chmod -R 0644 /etc/vault.d/
+chmod -R 0644 /etc/vault.d/*
 chmod 0755 /usr/local/bin/vault
 chown vault:vault /usr/local/bin/vault
 
