@@ -145,12 +145,6 @@ vault write auth/kubernetes/config \
 
 #Create service accounts for two apps/ processes in a new name space vault-app
 
-kubectl create serviceaccount k8s-app1
-kubectl create serviceaccount k8s-app2
-
-
-kubectl create ns vault-app1
-kubectl create ns vault-app2
 
 kubectl get serviceAccounts
 kubectl get ns
@@ -164,47 +158,41 @@ vault write auth/kubernetes/role/testauth \
 
 vault write auth/kubernetes/role/app1 \
     bound_service_account_names=vault-auth \
-    bound_service_account_namespaces=vault-app1 \
+    bound_service_account_namespaces=vault-deploy \
     policies=test-policy2 \
     ttl=24h
 
 
 vault write auth/kubernetes/role/app2 \
     bound_service_account_names=vault-auth \
-    bound_service_account_namespaces=vault-app2 \
+    bound_service_account_namespaces=vault-deploy \
     policies=test-policy3 \
     ttl=24h
 
-$ cat > vault-app1tokenreview.yml <<EOF
-apiVersion: rbac.authorization.k8s.io/v1
-kind: ClusterRoleBinding
-metadata:
-  name: vault-app1-tokenreview-binding
-  namespace: vault-app1
-roleRef:
-  apiGroup: rbac.authorization.k8s.io
-  kind: ClusterRole
-  name: system:auth-delegator
-subjects:
-- kind: ServiceAccount
-  name: vault-auth
-  namespace: vault-app1
-EOF
 
-#For all service accounts in the "qa" namespace"
-subjects:
-- kind: Group
-  name: system:serviceaccounts:qa
-  apiGroup: rbac.authorization.k8s.io
 
-kubectl apply -f vault-app1tokenreview.yml 
+---------------------
 
-kubectl config set-context vault-app1 --namespace=vault-app1 \
-  --cluster=gke_mckingdom-gcp_us-east4-a_k8s-mcb \
-  --user=gke_mckingdom-gcp_us-east4-a_k8s-mcb
+To test
+Create a Temporary Image:
 
-kubectl config use-context vault-app1
+kubectl run --generator=run-pod/v1 tmp  -i --tty --serviceaccount=vault-auth --image alpine
 
+kubectl attach tmp -c tmp -i -t
+
+# some preq
+$ apk update
+$ apk add curl postgresql-client jq
+# fetch the vault token of this specific pod
+
+export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
+echo ${KUBE_TOKEN}
+
+export VAULT_K8S_LOGIN=$(curl --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "testauth"}' http://vault:8200/v1/auth/kubernetes/login)
+
+echo $VAULT_K8S_LOGIN | jq
+
+X_VAULT_TOKEN=$(echo $VAULT_K8S_LOGIN | jq -r '.auth.client_token')
 
 ---------------------
 
