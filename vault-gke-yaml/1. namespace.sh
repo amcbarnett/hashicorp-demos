@@ -1,6 +1,8 @@
 kubectl create ns vault-deploy
+kubectl get ns
+
 kubectl config view
-kubectl config current-context
+kubectl config current-context 
 
 export GKE_CLUSTER=gke_mckingdom-gcp_us-east4-a_k8s-mcb
 export GKE_USER=gke_mckingdom-gcp_us-east4-a_k8s-mcb
