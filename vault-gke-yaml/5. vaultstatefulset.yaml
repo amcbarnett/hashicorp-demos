@@ -1,97 +1,129 @@
 #Create a StatefulSet
 
 cat <<EOF > vaultstatefulset.yaml
+cat <<EOF > vaultstatefulset.yaml
 apiVersion: apps/v1
 kind: StatefulSet
-metadata:
-  name: consul
-spec:
-  serviceName: consul
+metadata: 
+  labels: 
+    app: vault
+  name: vault
+spec: 
   replicas: 3
-  selector:
-    matchLabels:
-      app: consul
-  template:
-    metadata:
-      labels:
-        app: consul
-    spec:
-      affinity:
-        podAntiAffinity:
-          requiredDuringSchedulingIgnoredDuringExecution:
-            - labelSelector:
-                matchExpressions:
-                  - key: app
+  selector: 
+    matchLabels: 
+      app: vault
+  serviceName: vault
+  template: 
+    metadata: 
+      labels: 
+        app: vault
+    spec: 
+      affinity: 
+        podAntiAffinity: 
+          requiredDuringSchedulingIgnoredDuringExecution: 
+            - 
+              labelSelector: 
+                matchExpressions: 
+                  - 
+                    key: app
                     operator: In
-                    values:
-                      - consul
+                    values: 
+                      - vault
               topologyKey: kubernetes.io/hostname
-      terminationGracePeriodSeconds: 10
-      securityContext:
-        fsGroup: 1000
-      containers:
-        - name: consul
-          image: "consul:1.4.0"
-          env:
-            - name: POD_IP
-              valueFrom:
-                fieldRef:
+      containers: 
+        -
+          command: ["vault", "server", "-config", "/vault/config/vault.hcl"]
+          env: 
+            - 
+              name: HOST_IP
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: status.hostIP
+            - 
+              name: POD_IP
+              valueFrom: 
+                fieldRef: 
                   fieldPath: status.podIP
-            - name: NAMESPACE
-              valueFrom:
-                fieldRef:
+            - 
+              name: NAMESPACE
+              valueFrom: 
+                fieldRef: 
                   fieldPath: metadata.namespace
-          args:
-            - "agent"
-            - "-advertise=$(POD_IP)"
-            - "-bind=0.0.0.0"
-            - "-bootstrap-expect=3"
+          image: "vault:1.0.1"
+          imagePullPolicy: IfNotPresent
+          lifecycle: 
+            preStop: 
+              exec: 
+                command: 
+                  - "vault operator step-down"
+          name: vault
+          ports: 
+            - 
+              containerPort: 8200
+              name: vault-port
+              protocol: TCP
+            - 
+              containerPort: 8201
+              name: cluster-port
+              protocol: TCP
+          securityContext: 
+            capabilities: 
+              add: 
+                - IPC_LOCK
+          volumeMounts: 
+            - 
+              mountPath: /vault/config/vault.hcl
+              name: configurations
+              subPath: vault.hcl
+          volumeMounts: 
+            - 
+              mountPath: /vault/config/vaultapi.hcl
+              name: configurations
+              subPath: vaultapi.hcl
+        - 
+          args: 
+            - agent
             - "-retry-join=consul-0.consul.$(NAMESPACE).svc.cluster.local"
             - "-retry-join=consul-1.consul.$(NAMESPACE).svc.cluster.local"
             - "-retry-join=consul-2.consul.$(NAMESPACE).svc.cluster.local"
-            - "-client=0.0.0.0"
-            - "-datacenter=dc1"
-            - "-data-dir=/consul/data"
             - "-domain=cluster.local"
-            - "-server"
-            - "-ui"
+            - "-datacenter=dc1"
             - "-disable-host-node-id"
-          volumeMounts:
-            - name: data
+            - "-client=127.0.0.1"
+            - "-bind=$(POD_IP)"
+          env: 
+            - 
+              name: POD_IP
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: status.podIP
+            - 
+              name: NAMESPACE
+              valueFrom: 
+                fieldRef: 
+                  fieldPath: metadata.namespace
+          image: "consul:1.4.0"
+          name: consul-vault-agent
+          volumeMounts: 
+            - 
               mountPath: /consul/data
-          lifecycle:
-            preStop:
-              exec:
-                command:
-                - /bin/sh
-                - -c
-                - consul leave
-          ports:
-            - containerPort: 8500
-              name: ui-port
-            - containerPort: 8400
-              name: alt-port
-            - containerPort: 53
-              name: udp-port
-            - containerPort: 8443
-              name: https-port
-            - containerPort: 8080
-              name: http-port
-            - containerPort: 8301
-              name: serflan
-            - containerPort: 8302
-              name: serfwan
-            - containerPort: 8600
-              name: consuldns
-            - containerPort: 8300
-              name: server
-  volumeClaimTemplates:
-    - metadata:
+              name: data
+      terminationGracePeriodSeconds: 10
+      volumes: 
+        - 
+          configMap: 
+            name: vault
+          name: configurations
+  volumeClaimTemplates: 
+    - 
+      metadata: 
         name: data
-      spec:
-        accessModes: [ "ReadWriteOnce" ]
-        resources:
-          requests:
+      spec: 
+        accessModes: 
+          - ReadWriteOnce
+        resources: 
+          requests: 
             storage: 1Gi
 EOF
 
