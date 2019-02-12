@@ -20,6 +20,6 @@ EOF
 
 # Create Vault Config Map
 
-kubectl create ns vault-deploy
+#kubectl create ns vault-deploy
 
 kubectl create configmap vault --from-file=vault.hcl -n vault-deploy
