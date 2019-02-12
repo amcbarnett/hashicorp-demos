@@ -19,8 +19,6 @@ fi
 CONSUL_VERSION="1.4.2"
 VAULT_VERSION="1.0.2"
 MYIP=$1
-MACHINE1=$2
-MACHINE2=$3
 
 # Set up some directories
 mkdir -pm 0755 /etc/vault.d
@@ -84,7 +82,7 @@ cat << EOF > /etc/consul.d/consul.json
   "bootstrap_expect": 3,
   "leave_on_terminate": true,
   "advertise_addr": "${MYIP}",
-  "retry_join": ["${MACHINE1}","${MACHINE2}"],
+  "retry_join": ["${MYIP"],
   "data_dir": "/opt/consul/data",
   "client_addr": "0.0.0.0",
   "log_level": "INFO",
