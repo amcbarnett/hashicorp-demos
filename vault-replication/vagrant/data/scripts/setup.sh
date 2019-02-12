@@ -32,7 +32,7 @@ Requires=consul.service
 After=consul.service
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/consul-online.sh
+ExecStart=/usr/local/bin/consul-online.sh
 User=consul
 Group=consul
 [Install]
