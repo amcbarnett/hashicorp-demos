@@ -19,8 +19,8 @@ kubectl exec -it ${VAULT_POD} -c ${VAULT_SERVICE} -- /bin/sh -c 'VAULT_ADDR=http
 export VAULT_UNSEAL="xxx"
 export VAULT_TOKEN="xxx"
 
-for v in `kubectl get pods | grep vault | cut -f1 -d' '`; do kubectl exec -ti $v -c vault -- /bin/sh -c 'VAULT_ADDR=http://localhost:8200 vault operator unseal bPV4zv3ezMR29ipBPW8jDfHh7CjsIolRSoiPBOMHhls=
-'; done
+for v in `kubectl get pods | grep vault | cut -f1 -d' '`; do kubectl exec -ti $v -c vault -- /bin/sh -c "VAULT_ADDR=http://localhost:8200 vault operator unseal ${VAULT_UNSEAL}
+"; done
 
 for v in `kubectl get pods | grep vault | cut -f1 -d' '`; do kubectl exec -ti $v -c vault -- /bin/sh -c 'VAULT_ADDR=http://localhost:8200 vault status'; done
 
