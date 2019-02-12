@@ -73,11 +73,6 @@ spec:
               mountPath: /vault/config/vault.hcl
               name: configurations
               subPath: vault.hcl
-          volumeMounts: 
-            - 
-              mountPath: /vault/config/vaultapi.hcl
-              name: configurations
-              subPath: vaultapi.hcl
         - 
           args: 
             - agent
