@@ -14,5 +14,8 @@ kubectl config set-context vault-deploy --namespace=vault-deploy \
 #Switch Context
 kubectl config use-context vault-deploy 
 
+# List Contexts
+kubectl config get-contexts
+
 #To Delete Context
 #kubectl config delete-context vault-deploy
