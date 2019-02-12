@@ -17,3 +17,5 @@ spec:
 EOF
 
 kubectl create -f vaultservice.yaml -n vault-deploy
+
+kubectl get service
