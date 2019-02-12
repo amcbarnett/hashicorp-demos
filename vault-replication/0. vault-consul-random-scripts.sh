@@ -183,13 +183,5 @@ path "sys/capabilities-self"
 
 ------------------
 
-Demo Keys
 
-
-Initial Root Token: 2dbeafab-170f-9139-a99d-373bf2df9434
-
-
-Initial Root Token:6af43258-8d1e-3a5f-1367-20fd879742e6
-
-----
 
