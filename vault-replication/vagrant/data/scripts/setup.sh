@@ -12,7 +12,7 @@
 # systemctl start vault
 
 if [ "$#" -ne 1 ]; then
-  echo "You must supply the IP address of the node upon which you're running this script."
+  echo "You must supply the IP address of the node upon which you're running this script. Probably the IP bound to eth1"
   echo "$0 192.168.56.106"
 fi
 
