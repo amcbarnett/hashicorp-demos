@@ -216,7 +216,7 @@ $ apk add curl postgresql-client jq
 export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 echo ${KUBE_TOKEN}
 
-export VAULT_K8S_LOGIN=$(curl --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "k8s-app1"}' http://vault:8200/v1/auth/kubernetes/login)
+export VAULT_K8S_LOGIN=$(curl --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "app1"}' http://vault:8200/v1/auth/kubernetes/login)
 
 echo $VAULT_K8S_LOGIN | jq
 
@@ -239,7 +239,7 @@ $ apk add curl postgresql-client jq
 export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
 echo ${KUBE_TOKEN}
 
-export VAULT_K8S_LOGIN=$(curl --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "k8s-app2"}' http://vault:8200/v1/auth/kubernetes/login)
+export VAULT_K8S_LOGIN=$(curl --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", "role": "app2"}' http://vault:8200/v1/auth/kubernetes/login)
 
 echo $VAULT_K8S_LOGIN | jq
 
