@@ -73,37 +73,37 @@ Description=Consul Online
 RefuseManualStart=true
 EOF
 
-if [ "$#" -eq 1 ]; then
-# Configure the Consul JSON config
-    cat << EOF > /etc/consul.d/consul.json
-      {
-        "server": true,
-        "leave_on_terminate": true,
-        "advertise_addr": "${MYIP}",
-        "data_dir": "/opt/consul/data",
-        "client_addr": "0.0.0.0",
-        "log_level": "INFO",
-        "ui": true
-      }
-      EOF
-    elif [ "$#" -eq 3 ]; then
-      # Three node cluster
-      cat << EOF > /etc/consul.d/consul.json
-      {
-        "server": true,
-        "bootstrap_expect": 3,
-        "leave_on_terminate": true,
-        "advertise_addr": "${MYIP}",
-        "retry_join": ["${MACHINE1}","${MACHINE2}"],
-        "data_dir": "/opt/consul/data",
-        "client_addr": "0.0.0.0",
-        "log_level": "INFO",
-        "ui": true
-      }
-      EOF
-    else
-      echo "Please provide either 1 or 3 IP addresses (single node or 3 node cluster)"
-      exit 1
+if [ $CLUSTER_COUNT -eq 1 ]; then
+  # Configure the Consul JSON config
+  cat << EOF > /etc/consul.d/consul.json
+  {
+  "server": true,
+  "leave_on_terminate": true,
+  "advertise_addr": "${MYIP}",
+  "data_dir": "/opt/consul/data",
+  "client_addr": "0.0.0.0",
+  "log_level": "INFO",
+  "ui": true
+  }
+EOF
+elif [ $CLUSTER_COUNT -eq 3 ]; then
+  # Three node cluster
+  cat << EOF > /etc/consul.d/consul.json
+  {
+  "server": true,
+  "bootstrap_expect": 3,
+  "leave_on_terminate": true,
+  "advertise_addr": "${MYIP}",
+  "retry_join": ["${MACHINE1}","${MACHINE2}"],
+  "data_dir": "/opt/consul/data",
+  "client_addr": "0.0.0.0",
+  "log_level": "INFO",
+  "ui": true
+  }
+EOF
+else
+  echo "Please provide either 1 or 3 IP addresses (single node or 3 node cluster)"
+  exit 1
 fi
   
 
@@ -182,38 +182,38 @@ logger() {
 
 user_rhel() {
   # RHEL user setup
-  /usr/sbin/groupadd --force --system ${GROUP}
+  /usr/sbin/groupadd --force --system "${GROUP}"
 
-  if ! getent passwd ${USER} >/dev/null ; then
+  if ! getent passwd "${USER}" >/dev/null ; then
     /usr/sbin/adduser \
       --system \
-      --gid ${GROUP} \
-      --home ${HOME} \
+      --gid "${GROUP}" \
+      --home "${HOME}" \
       --no-create-home \
       --comment "${COMMENT}" \
       --shell /bin/false \
-      ${USER}  >/dev/null
+      "${USER}"  >/dev/null
   fi
 }
 
 user_ubuntu() {
   # UBUNTU user setup
-  if ! getent group ${GROUP} >/dev/null
+  if ! getent group "${GROUP}" >/dev/null
   then
-    addgroup --system ${GROUP} >/dev/null
+    addgroup --system "${GROUP}" >/dev/null
   fi
 
-  if ! getent passwd ${USER} >/dev/null
+  if ! getent passwd "${USER}" >/dev/null
   then
     adduser \
       --system \
       --disabled-login \
-      --ingroup ${GROUP} \
-      --home ${HOME} \
+      --ingroup "${GROUP}" \
+      --home "${HOME}" \
       --no-create-home \
       --gecos "${COMMENT}" \
       --shell /bin/false \
-      ${USER}  >/dev/null
+      "${USER}"  >/dev/null
   fi
 }
 
