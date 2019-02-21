@@ -197,6 +197,10 @@ echo $VAULT_K8S_LOGIN | jq
 
 X_VAULT_TOKEN=$(echo $VAULT_K8S_LOGIN | jq -r '.auth.client_token')
 
+curl --header "X-Vault-Token: ${X_VAULT_TOKEN}" \
+       --request GET \
+       http://vault:8200/v1/secret/mysecret | jq
+
 ---------------------
 
 ---------------------
@@ -223,6 +227,14 @@ echo $VAULT_K8S_LOGIN | jq
 
 X_VAULT_TOKEN=$(echo $VAULT_K8S_LOGIN | jq -r '.auth.client_token')
 
+curl --header "X-Vault-Token: ${X_VAULT_TOKEN}" \
+       --request GET \
+       http://vault:8200/v1/secret/mysecret | jq
+       
+curl --header "X-Vault-Token: ${X_VAULT_TOKEN}" \
+       --request GET \
+       http://vault:8200/v1/secret/topsecret | jq
+
 ------------------------
 
 #To test K8s Auth with service account k8s-app2
@@ -245,5 +257,14 @@ export VAULT_K8S_LOGIN=$(curl --request POST --data '{"jwt": "'"$KUBE_TOKEN"'", 
 echo $VAULT_K8S_LOGIN | jq
 
 X_VAULT_TOKEN=$(echo $VAULT_K8S_LOGIN | jq -r '.auth.client_token')
+
+
+curl --header "X-Vault-Token: ${X_VAULT_TOKEN}" \
+       --request GET \
+       http://vault:8200/v1/secret/mysecret | jq
+       
+curl --header "X-Vault-Token: ${X_VAULT_TOKEN}" \
+       --request GET \
+       http://vault:8200/v1/secret/topsecret | jq
 
 
