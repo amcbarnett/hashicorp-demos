@@ -154,22 +154,23 @@ kubectl get ns
 vault write auth/kubernetes/role/testauth \
     bound_service_account_names=vault-auth \
     bound_service_account_namespaces=vault-deploy \
-    policies=test-policy \
+    policies="admin-policy,default" \
     ttl=24h
 
 
 vault write auth/kubernetes/role/app1 \
     bound_service_account_names=k8s-app1 \
     bound_service_account_namespaces=vault-deploy \
-    policies=test-policy1 \
+    policies="apps-policy, cert-policy" \
     ttl=24h
 
 
 vault write auth/kubernetes/role/app2 \
     bound_service_account_names=k8s-app2 \
     bound_service_account_namespaces=vault-deploy \
-    policies=test-policy2 \
+    policies="apps-policy" \
     ttl=24h
+
 
 
 
