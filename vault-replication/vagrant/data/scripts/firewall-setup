@@ -37,6 +37,8 @@ EOF
 
 firewall-cmd --zone=public --add-service=consul --permanent
 firewall-cmd --zone=public --add-service=vault --permanent
+firewall-cmd --zone=public --add-service=https --permanent
+firewall-cmd --zone=public --add-service=http --permanent
 firewall-cmd --complete-reload
 
 # troubleshooting commands
