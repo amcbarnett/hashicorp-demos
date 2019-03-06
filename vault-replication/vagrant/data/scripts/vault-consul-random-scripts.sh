@@ -1,4 +1,4 @@
-Consult Server Setup with Vault
+Consul Server Setup with Vault
 
 # ~/vault_consul.hcl
 
