@@ -258,4 +258,7 @@ chmod 0755 /usr/local/bin/consul-online.sh
 systemctl enable vault.service
 systemctl enable consul.service
 
+# set VAULT_ADDR environment var for CLI
+echo 'export VAULT_ADDR="http://127.0.0.1:8200"' >> $HOME/.bashrc
+
 logger "Complete"
