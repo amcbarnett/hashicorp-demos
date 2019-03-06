@@ -32,7 +32,7 @@ Requires=consul.service
 After=consul.service
 [Service]
 Type=oneshot
-ExecStart=/usr/bin/consul-online.sh
+ExecStart=/usr/local/bin/consul-online.sh
 User=consul
 Group=consul
 [Install]
@@ -42,12 +42,9 @@ EOF
 # Create the Consul online script
 cat << EOF > /usr/local/bin/consul-online.sh
 #!/usr/bin/env bash
-
 set -e
 set -o pipefail
-
 CONSUL_ADDRESS=${1:-"127.0.0.1:8500"}
-
 # waitForConsulToBeAvailable loops until the local Consul agent returns a 200
 # response at the /v1/operator/raft/configuration endpoint.
 #
@@ -73,37 +70,37 @@ Description=Consul Online
 RefuseManualStart=true
 EOF
 
-if [ "$#" -eq 1 ]; then
-# Configure the Consul JSON config
-    cat << EOF > /etc/consul.d/consul.json
-      {
-        "server": true,
-        "leave_on_terminate": true,
-        "advertise_addr": "${MYIP}",
-        "data_dir": "/opt/consul/data",
-        "client_addr": "0.0.0.0",
-        "log_level": "INFO",
-        "ui": true
-      }
-      EOF
-    elif [ "$#" -eq 3 ]; then
-      # Three node cluster
-      cat << EOF > /etc/consul.d/consul.json
-      {
-        "server": true,
-        "bootstrap_expect": 3,
-        "leave_on_terminate": true,
-        "advertise_addr": "${MYIP}",
-        "retry_join": ["${MACHINE1}","${MACHINE2}"],
-        "data_dir": "/opt/consul/data",
-        "client_addr": "0.0.0.0",
-        "log_level": "INFO",
-        "ui": true
-      }
-      EOF
-    else
-      echo "Please provide either 1 or 3 IP addresses (single node or 3 node cluster)"
-      exit 1
+if [ $CLUSTER_COUNT -eq 1 ]; then
+  # Configure the Consul JSON config
+  cat << EOF > /etc/consul.d/consul.json
+  {
+  "server": true,
+  "leave_on_terminate": true,
+  "advertise_addr": "${MYIP}",
+  "data_dir": "/opt/consul/data",
+  "client_addr": "0.0.0.0",
+  "log_level": "INFO",
+  "ui": true
+  }
+EOF
+elif [ $CLUSTER_COUNT -eq 3 ]; then
+  # Three node cluster
+  cat << EOF > /etc/consul.d/consul.json
+  {
+  "server": true,
+  "bootstrap_expect": 3,
+  "leave_on_terminate": true,
+  "advertise_addr": "${MYIP}",
+  "retry_join": ["${MACHINE1}","${MACHINE2}"],
+  "data_dir": "/opt/consul/data",
+  "client_addr": "0.0.0.0",
+  "log_level": "INFO",
+  "ui": true
+  }
+EOF
+else
+  echo "Please provide either 1 or 3 IP addresses (single node or 3 node cluster)"
+  exit 1
 fi
   
 
@@ -114,7 +111,6 @@ cat << EOF > /etc/systemd/system/consul.service
 Description=Consul Agent
 Requires=network-online.target
 After=network-online.target
-
 [Service]
 Restart=on-failure
 ExecStart=/usr/local/bin/consul agent -config-dir /etc/consul.d
@@ -122,7 +118,6 @@ ExecReload=/bin/kill -HUP $MAINPID
 KillSignal=SIGTERM
 User=consul
 Group=consul
-
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -133,7 +128,6 @@ cat << EOF > /etc/systemd/system/vault.service
 Description=Vault Server
 Requires=consul-online.target
 After=consul-online.target
-
 [Service]
 Restart=on-failure
 PermissionsStartOnly=true
@@ -143,7 +137,6 @@ ExecReload=/bin/kill -HUP $MAINPID
 KillSignal=SIGTERM
 User=vault
 Group=vault
-
 [Install]
 WantedBy=multi-user.target
 EOF
@@ -182,38 +175,38 @@ logger() {
 
 user_rhel() {
   # RHEL user setup
-  /usr/sbin/groupadd --force --system ${GROUP}
+  /usr/sbin/groupadd --force --system "${GROUP}"
 
-  if ! getent passwd ${USER} >/dev/null ; then
+  if ! getent passwd "${USER}" >/dev/null ; then
     /usr/sbin/adduser \
       --system \
-      --gid ${GROUP} \
-      --home ${HOME} \
+      --gid "${GROUP}" \
+      --home "${HOME}" \
       --no-create-home \
       --comment "${COMMENT}" \
       --shell /bin/false \
-      ${USER}  >/dev/null
+      "${USER}"  >/dev/null
   fi
 }
 
 user_ubuntu() {
   # UBUNTU user setup
-  if ! getent group ${GROUP} >/dev/null
+  if ! getent group "${GROUP}" >/dev/null
   then
-    addgroup --system ${GROUP} >/dev/null
+    addgroup --system "${GROUP}" >/dev/null
   fi
 
-  if ! getent passwd ${USER} >/dev/null
+  if ! getent passwd "${USER}" >/dev/null
   then
     adduser \
       --system \
       --disabled-login \
-      --ingroup ${GROUP} \
-      --home ${HOME} \
+      --ingroup "${GROUP}" \
+      --home "${HOME}" \
       --no-create-home \
       --gecos "${COMMENT}" \
       --shell /bin/false \
-      ${USER}  >/dev/null
+      "${USER}"  >/dev/null
   fi
 }
 
@@ -247,12 +240,12 @@ cp -rp consul /usr/local/bin/consul
 cp -rp vault /usr/local/bin/vault
 
 chown -R consul:consul /etc/consul.d /opt/consul
-chmod -R 0644 /etc/consul.d/
+chmod -R 0644 /etc/consul.d/*
 chmod 0755 /usr/local/bin/consul
 chown consul:consul /usr/local/bin/consul
 
 chown -R vault:vault /etc/vault.d /etc/ssl/vault
-chmod -R 0644 /etc/vault.d/
+chmod -R 0644 /etc/vault.d/*
 chmod 0755 /usr/local/bin/vault
 chown vault:vault /usr/local/bin/vault
 
