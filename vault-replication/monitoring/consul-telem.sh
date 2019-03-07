@@ -6,7 +6,6 @@
 # ./consul-telem.sh
 
 cat << EOF > /etc/consul.d/consul-telem.json
-/etc/consul.d/consul-telem.json
 {
   "telemetry": {
     "dogstatsd_addr": "localhost:8125",
