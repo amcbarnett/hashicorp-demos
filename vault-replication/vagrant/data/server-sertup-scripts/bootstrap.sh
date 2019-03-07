@@ -14,4 +14,6 @@ firewall-cmd --get-active-zones > logger
 yum install nano -y
 yum install unzip -y
 yum install open-vm-tools -y
+yum install net-tools -y
+yum install nmap -y
 reboot
