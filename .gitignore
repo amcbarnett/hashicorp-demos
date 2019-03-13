@@ -1,2 +1,4 @@
 
 .DS_Store
+vault-replication/monitoring/datadog.yaml
+vault-replication/monitoring/datadog.yaml.orig.yaml

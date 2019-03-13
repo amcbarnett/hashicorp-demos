@@ -1,0 +1,17 @@
+VAULT_TOKEN="<vault token>" ./prepare.py --num-secrets=1000000 --host="http://192.168.1.231:8200"
+
+
+/home/jray/consul/consul join -http-addr=192.168.1.232:8500
+
+/home/jray/consul/consul agent -data-dir=/tmp/consul -node=loadgen -datacenter=dc1
+
+
+/home/jray/consul/consul agent -retry-join=["192.168.1.232", "192.168.1.231", "192.168.1.159"]
+
+
+{
+  "bootstrap": false,
+  "bootstrap_expect": 3,
+  "server": true,
+  "retry_join": ["52.10.110.11", "52.10.110.12", "52.10.100.13"]
+}

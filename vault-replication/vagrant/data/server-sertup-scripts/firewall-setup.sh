@@ -32,6 +32,15 @@ cat << EOF > /etc/firewalld/services/vault.xml
 </service>
 EOF
 
+cat << EOF > /etc/firewalld/services/telegraf.xml
+<?xml version="1.0" encoding="utf-8"?>
+<service>
+  <short>telegraf</short>
+  <description>TCP connectivity required for outbound Telegraf agent.</description>
+  <port protocol="tcp" port="8086"/>
+</service>
+EOF
+
 # add custom services to default zone
 # assumes public zone
 
@@ -39,6 +48,7 @@ firewall-cmd --zone=public --add-service=consul --permanent
 firewall-cmd --zone=public --add-service=vault --permanent
 firewall-cmd --zone=public --add-service=https --permanent
 firewall-cmd --zone=public --add-service=http --permanent
+firewall-cmd --zone=public --add-service=telegraf --permanent
 firewall-cmd --complete-reload
 
 # troubleshooting commands
