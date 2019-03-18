@@ -9,4 +9,4 @@ oc config use-context vault-deploy
 oc config current-context
 
 #To Delete Context
-#kubectl config delete-context vault-deploy
+#oc config delete-context vault-deploy
