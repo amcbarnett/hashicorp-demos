@@ -2,6 +2,8 @@
 
 kubectl create -f vaultstatefulset.yaml -n vault-deploy
 
+# kubectl delete vaultstatefulset.yaml
+
 # Repeat intil you see three Vault nodes
 kubectl get pods
 
