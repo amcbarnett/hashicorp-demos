@@ -21,5 +21,6 @@ kubectl port-forward consul-1 8500:8500
 
 #Go to web for Console UI
 
-#Go back to previous terminal and run
+#Go back to previous terminal or in a new terminal and run
+kubectl exec -it consul-0 -c consul -- /bin/sh
 consul members
