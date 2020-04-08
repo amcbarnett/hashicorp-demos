@@ -28,7 +28,7 @@ spec:
         fsGroup: 1000
       containers:
         - name: consul
-          image: "consul:1.4.0"
+          image: "consul:latest"
           env:
             - name: POD_IP
               valueFrom:
