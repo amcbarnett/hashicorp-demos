@@ -187,8 +187,8 @@ kubectl run --generator=run-pod/v1 tmp  -i --tty --serviceaccount=vault-auth --i
 kubectl attach tmp -c tmp -i -t
 
 # some preq
-$ apk update
-$ apk add curl postgresql-client jq
+apk update
+apk add curl postgresql-client jq
 # fetch the vault token of this specific pod
 
 export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
@@ -217,8 +217,8 @@ kubectl run --generator=run-pod/v1 tmp-app1  -i --tty --serviceaccount=k8s-app1 
 kubectl attach tmp-app1 -c tmp-app1 -i -t
 
 # some preq
-$ apk update
-$ apk add curl postgresql-client jq
+apk update
+apk add curl postgresql-client jq
 # fetch the vault token of this specific pod
 
 export KUBE_TOKEN=$(cat /var/run/secrets/kubernetes.io/serviceaccount/token)
