@@ -81,6 +81,9 @@ EOF
 
 kubectl apply -f vault-serviceaccount.yml
 
+kubectl get serviceaccount
+kubectl get namespace
+
 
 -----------------
 
